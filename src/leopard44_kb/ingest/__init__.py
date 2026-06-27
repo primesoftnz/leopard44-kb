@@ -82,26 +82,22 @@ def _detect_source_type(path: Path) -> str:
             if parts[i] == "data" and parts[i + 1] == "logs" and parts[i + 2] == "maint":
                 return "maintenance_entry"
         # Generated deviation entries live under the canonical data/deviations/ tree.
-        # Detect them so a broad `l44 ingest data/` re-ingest keeps source_type
-        # 'deviation' (preserving the deviation_id/zone_id chunk metadata that drives
-        # retrieval + the blue schematic highlight) instead of downgrading to plain
-        # 'markdown'.
+        # Detect them by the CONSECUTIVE ("data", "deviations") sequence anywhere in the
+        # path — symmetric with the maintenance_entry rule above. This keeps source_type
+        # 'deviation' on a broad `l44 ingest data/` re-ingest (preserving the
+        # deviation_id/zone_id chunk metadata that drives retrieval + the blue schematic
+        # highlight) AND makes the vessel-only layer guard in ingest_file() fire for a
+        # deviation file addressed by ANY path.
         #
-        # D-16 Item 4 fix: repo-root-anchored guard (T-13-21).
-        # A plain relative path starting with data/deviations/ is accepted (normal CLI
-        # usage — cwd == repo root).  An absolute path must resolve within
-        # _REPO_ROOT/data/deviations/ to prevent a non-canonical absolute path that
-        # merely contains consecutive data/deviations parts from being mis-typed as a
-        # deviation file.
-        if len(parts) >= 2 and parts[0] == "data" and parts[1] == "deviations":
-            return "deviation"
-        if path.is_absolute():
-            _dev_root = (_REPO_ROOT / "data" / "deviations").resolve()
-            try:
-                if path.resolve().is_relative_to(_dev_root):
-                    return "deviation"
-            except Exception:
-                pass
+        # WR-01 fix: the earlier _REPO_ROOT-anchored absolute check returned "markdown"
+        # for a deviation file under a non-canonical absolute path (a second clone, a
+        # relocated/symlinked data/ dir — exactly what ingest_file's own repo-root walk
+        # below supports), which silently bypassed the vessel-only guard and could let
+        # PRIVATE deviation content be ingested as --layer community. Matching the
+        # maintenance detector fails CLOSED: any data/deviations/ path is vessel-only.
+        for i in range(len(parts) - 1):
+            if parts[i] == "data" and parts[i + 1] == "deviations":
+                return "deviation"
         return "markdown"
     # .txt: use looks_like_whatsapp() to peek at content, then directory-name fallback.
     if suffix == ".txt":

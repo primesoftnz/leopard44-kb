@@ -574,7 +574,11 @@ def retrieve(
         id_to_layer: dict[int, str] = {r["id"]: r["layer"] for r in layer_rows}
         fused = sorted(
             [
-                (cid, score * LAYER_AUTHORITY.get(id_to_layer.get(cid, "vessel"), 1.0))
+                # IN-05: a fused id absent from the chunks JOIN (a genuine orphan, e.g. a
+                # vec_chunks/fts row with no chunks parent) gets the NEUTRAL 1.0
+                # multiplier — not the vessel 0.9 — so a data inconsistency is neither
+                # silently down-weighted nor hidden.
+                (cid, score * LAYER_AUTHORITY.get(id_to_layer.get(cid), 1.0))
                 for cid, score in fused
             ],
             key=lambda x: x[1],

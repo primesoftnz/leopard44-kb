@@ -2010,7 +2010,6 @@ def migrate_relayer_whatsapp_cmd(
         Your private boat WhatsApp should always be ingested with --layer vessel
         (the default) so it stays private and out of the community scope.
     """
-    import shutil as _shutil  # noqa: PLC0415
     import leopard44_kb.migrate as _migrate  # noqa: PLC0415
     from leopard44_kb.store import open_db  # noqa: PLC0415
 
@@ -2101,12 +2100,34 @@ def migrate_relayer_whatsapp_cmd(
 
         # ---- Write backup before any move ----
         if db_path_str != ":memory:":
-            bak_path = db_path.with_suffix(db_path.suffix + ".pre-d15.bak")
+            # WR-03: timestamp the backup so sequential partial migrations
+            # (--source A then --source B) never overwrite an earlier recovery point.
+            from datetime import datetime, timezone  # noqa: PLC0415
+
+            stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            bak_path = db_path.with_suffix(db_path.suffix + f".pre-d15.{stamp}.bak")
             typer.echo(f"Writing backup to: {bak_path}")
+            # CR-02: open_db() uses WAL mode, so a bare file copy can silently miss
+            # committed data still resident in the -wal sidecar (the close-time
+            # checkpoint is best-effort). This .bak is the documented sole recovery
+            # path for an irreversible promotion, so take a consistent, WAL-aware
+            # snapshot via the SQLite Online Backup API on the live connection.
+            import sqlite3 as _sqlite3  # noqa: PLC0415
+
             try:
-                _shutil.copy2(str(db_path), str(bak_path))
+                bak_conn = _sqlite3.connect(str(bak_path))
+                try:
+                    conn.backup(bak_conn)
+                finally:
+                    bak_conn.close()
                 typer.echo(f"Backup written: {bak_path}")
-            except OSError as exc:
+            except (OSError, _sqlite3.Error) as exc:
+                # Remove a partial/half-written backup so it can't be mistaken for a
+                # valid recovery point.
+                try:
+                    bak_path.unlink(missing_ok=True)
+                except OSError:
+                    pass
                 typer.secho(
                     f"Error writing backup: {exc}\nAborting — store unchanged.",
                     fg=typer.colors.RED,

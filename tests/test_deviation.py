@@ -460,30 +460,38 @@ def test_create_deviation_atomic_on_backlink_failure(fake_embedder, ingest_db, t
     )
 
 
-def test_detect_source_type_deviation_anchored_to_repo_root(tmp_path):
-    """Item 4: _detect_source_type returns 'markdown' for non-repo-root data/deviations paths.
+def test_detect_source_type_deviation_fails_closed_on_any_path(tmp_path):
+    """WR-01: deviation detection fails CLOSED for ANY data/deviations/ path.
 
-    RED until Item 4 fix: the data/deviations guard is anchored to _REPO_ROOT so that
-    an absolute path with consecutive data/deviations parts elsewhere does NOT match.
-    A plain relative path starting with data/deviations/ still returns 'deviation' (normal usage).
+    A deviation file can legitimately live outside the package _REPO_ROOT (a second
+    clone, a relocated/symlinked data/ dir — exactly what ingest_file's repo-root walk
+    supports). The detector must classify it as 'deviation' so the vessel-only layer
+    guard fires and PRIVATE deviation content cannot be ingested as --layer community.
+    This supersedes the earlier _REPO_ROOT-anchored narrowing, which returned 'markdown'
+    for such paths and opened a privacy hole. Detection mirrors the maintenance_entry
+    rule (consecutive data/<kind> parts anywhere in the path).
     """
     from pathlib import Path
 
     from leopard44_kb.ingest import _detect_source_type
 
-    # An absolute path under tmp_path (NOT the real repo root) with data/deviations parts.
-    # Current code: returns 'deviation' (consecutive-parts match, no repo-root anchor) — wrong.
-    # After fix: returns 'markdown' (not under _REPO_ROOT/data/deviations/).
+    # An absolute path under tmp_path (NOT the real repo root) with data/deviations parts
+    # must STILL be detected as 'deviation' (fail closed → vessel-only).
     non_repo_path = tmp_path / "data" / "deviations" / "DEV-1.md"
     result = _detect_source_type(non_repo_path)
-    assert result == "markdown", (
-        f"Expected 'markdown' for non-repo-root absolute path {non_repo_path}; "
-        f"got {result!r}. The data/deviations guard must be anchored to _REPO_ROOT."
+    assert result == "deviation", (
+        f"Expected 'deviation' (fail-closed) for any data/deviations path {non_repo_path}; "
+        f"got {result!r}. The vessel-only layer guard must fire regardless of repo root."
     )
 
-    # A plain relative path data/deviations/... must still return 'deviation' (CLI usage).
+    # A plain relative path data/deviations/... is also 'deviation' (normal CLI usage).
     assert _detect_source_type(Path("data/deviations/DEV-1.md")) == "deviation", (
-        "Relative path data/deviations/DEV-1.md must still return 'deviation'"
+        "Relative path data/deviations/DEV-1.md must return 'deviation'"
+    )
+
+    # An unrelated .md NOT under a consecutive data/deviations sequence stays 'markdown'.
+    assert _detect_source_type(Path("data/notes/deviations-summary.md")) == "markdown", (
+        "data/notes/deviations-summary.md has no consecutive data/deviations parts → markdown"
     )
 
 

@@ -15,11 +15,17 @@ if ! command -v uv >/dev/null 2>&1; then
     fi
 fi
 
-# Second check: if uv is still absent (curl unavailable or install failed),
-# fall back to the Python bootstrapper which installs uv itself before syncing.
+# Second check: if uv is STILL absent (no curl, or the install failed) we cannot
+# proceed. scripts/setup_core.py imports third-party packages (httpx, leopard44_kb)
+# that only exist AFTER `uv sync`, so it cannot bootstrap a bare clone — running it
+# now would die with a confusing ModuleNotFoundError (WR-02). Emit an actionable
+# remedy and exit non-zero instead.
 if ! command -v uv >/dev/null 2>&1; then
-    echo "uv still not available — falling back to python3 bootstrapper..."
-    exec python3 scripts/setup_core.py "$@"
+    echo "ERROR: uv is required but could not be installed automatically." >&2
+    echo "Install uv manually, then re-run ./setup.sh:" >&2
+    echo "  curl -LsSf https://astral.sh/uv/install.sh | sh   # or: pipx install uv / brew install uv" >&2
+    echo "  docs: https://docs.astral.sh/uv/getting-started/installation/" >&2
+    exit 1
 fi
 
 exec uv run python scripts/setup_core.py "$@"

@@ -349,11 +349,17 @@ def run_smoke_test(question: str) -> bool:
     """
     from leopard44_kb.answer import REFUSAL_MESSAGE
 
-    result = subprocess.run(
-        ["uv", "run", "l44", "ask", question],
-        capture_output=True,
-        text=True,
-    )
+    # WR-05: bound the smoke query so a stalled Ollama generation cannot wedge the
+    # installer indefinitely (every other stallable subprocess here is bounded too).
+    try:
+        result = subprocess.run(
+            ["uv", "run", "l44", "ask", question],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+    except subprocess.TimeoutExpired:
+        return False
 
     output = result.stdout
     if result.returncode != 0:

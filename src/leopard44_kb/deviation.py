@@ -1,7 +1,11 @@
 """Factory-deviation log: NL extraction, dual-write core, and vessel-layer chunk.
 
 DEV-01: create_deviation writes a deviations row + a vessel-layer markdown chunk
-(source_type='deviation') in one atomic step with orphan-safe rollback.
+(source_type='deviation'). It is exception-safe with orphan cleanup — on any error
+the except-block unlinks the file and DELETEs the deviations + sources rows — but it
+is not a single crash-atomic transaction (the row, the source/chunk write, and the
+chunk_source_id back-link commit separately), so a hard kill between commits could
+leave an orphan deviations row.
 DEV-02: deviation chunks surface in the SAME RRF path as maintenance-log entries;
 no retrieve.py change is needed because 'deviation' is an authoritative source_type.
 

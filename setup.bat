@@ -51,9 +51,12 @@ set "PATH=%USERPROFILE%\.local\bin;%PATH%"
 where uv >nul 2>&1
 if not errorlevel 1 goto :uv_found
 
-echo uv still not available -- falling back to python bootstrapper...
-python scripts\setup_core.py --skip-install %*
-goto :eof
+:: WR-02: setup_core.py imports third-party packages (httpx, leopard44_kb) that only
+:: exist AFTER `uv sync`, so it cannot bootstrap a bare clone. Emit an actionable
+:: remedy and exit non-zero instead of dying on a confusing ModuleNotFoundError.
+echo ERROR: uv is required but could not be installed automatically. 1>&2
+echo Install uv manually (see https://docs.astral.sh/uv/getting-started/installation/), then re-run setup.bat. 1>&2
+exit /b 1
 
 :uv_found
 :: Delegate to the Python installer core (all platform-independent logic lives there)

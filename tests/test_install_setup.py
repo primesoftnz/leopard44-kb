@@ -871,12 +871,24 @@ def test_uv_bootstrap_setup_sh_has_installer_url():
     )
 
 
-def test_uv_bootstrap_setup_sh_has_python3_fallback():
-    """setup.sh must have 'python3 scripts/setup_core.py' fallback when curl unavailable (PKG-07)."""
+def test_uv_bootstrap_setup_sh_fails_clearly_without_uv():
+    """setup.sh must FAIL with an actionable remedy when uv cannot be installed (WR-02).
+
+    The old behaviour fell back to `python3 scripts/setup_core.py`, but setup_core.py
+    imports third-party packages (httpx, leopard44_kb) that only exist after `uv sync`,
+    so on a bare fresh clone that fallback died with a confusing ModuleNotFoundError —
+    exactly the "no prerequisites" case it claimed to handle. The corrected setup.sh
+    emits a clear 'uv is required' remedy and exits non-zero instead.
+    """
     content = (_REPO_ROOT / "setup.sh").read_text()
-    assert "python3 scripts/setup_core.py" in content, (
-        "setup.sh must fall back to 'python3 scripts/setup_core.py' "
-        "when curl is unavailable or uv install fails (PKG-07 fresh-clone guarantee)"
+    # The broken fallback must be gone.
+    assert "python3 scripts/setup_core.py" not in content, (
+        "setup.sh must NOT fall back to 'python3 scripts/setup_core.py' — that path "
+        "ImportErrors on a fresh clone (WR-02)"
+    )
+    # The uv-absent branch must emit an actionable remedy and exit non-zero.
+    assert "uv is required" in content and "exit 1" in content, (
+        "setup.sh must emit a clear 'uv is required' remedy and exit 1 when uv is absent"
     )
 
 

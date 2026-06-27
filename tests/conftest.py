@@ -13,6 +13,22 @@ import sqlite_vec
 from leopard44_kb.schema import apply_migrations
 
 
+@pytest.fixture(autouse=True)
+def _isolate_config(monkeypatch, tmp_path):
+    """Point L44_CONFIG at a nonexistent path for EVERY test (config isolation).
+
+    Model selection is config-first (answer.select_generation_model →
+    config.load_config), so a developer/contributor who has run `setup` — writing
+    ~/.local/share/leopard44-kb/config.json, e.g. a GPU-tier 14B config — would
+    otherwise leak that installed tier into the RAM-fallback tests and fail them.
+    Defaulting L44_CONFIG to a missing file makes load_config() return None, so the
+    suite is deterministic regardless of the host's installed config. Tests that need
+    a specific config call monkeypatch.setenv('L44_CONFIG', ...) themselves; that runs
+    after this autouse fixture (same function-scoped monkeypatch) and overrides it.
+    """
+    monkeypatch.setenv("L44_CONFIG", str(tmp_path / "no-such-config.json"))
+
+
 @pytest.fixture
 def empty_db() -> sqlite3.Connection:
     """In-memory SQLite connection with sqlite-vec loaded and migrations applied.
