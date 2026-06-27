@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "leopard44-kb"
+version = "0.1.0"
+description = "Leopard 44 vessel knowledge base — offline, two-layer (shared / vessel / community)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Greg Stevenson", email = "primesoftnz@gmail.com" }]
+
+dependencies = [
+    "sqlite-vec ~= 0.1.9",
+    "typer ~= 0.26",
+    "pydantic ~= 2.13",
+    "pymupdf ~= 1.27",
+    "tiktoken ~= 0.13",
+    "httpx ~= 0.28",
+    "fastapi ~= 0.136",
+    "python-multipart ~= 0.0.20",
+    "uvicorn ~= 0.34",
+    "jinja2 ~= 3.1",
+    "segno ~= 1.6",
+    "cryptography ~= 41.0",
+    "pillow ~= 11.0",
+    "piexif ~= 1.1",
+    "pillow-heif ~= 0.18",
+]
+
+[project.optional-dependencies]
+# IN-03: this `dev` extra is the canonical set for a plain `pip install -e .[dev]`.
+# It MUST stay in sync with the PEP 735 `[dependency-groups].dev` below, which uv
+# reads for `uv sync`/`uv sync --extra dev`. pytest-mock lives in BOTH so that the
+# test suite's pytest-mock dependency is installed under either toolchain; the
+# duplication is intentional (pip does not read PEP 735 groups).
+dev = [
+    "pytest ~= 9.0",
+    "pre-commit ~= 4.6",
+    "pytest-mock >= 3.15.1",
+    "pytest-playwright >= 0.5",
+]
+
+[project.scripts]
+l44 = "leopard44_kb.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/leopard44_kb"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -m \"not live and not e2e and not slow\""
+markers = [
+    "live: live Ollama integration test (requires Ollama + qwen2.5 models pulled); opt in with -m live",
+    "e2e: browser end-to-end test (requires pytest-playwright + launches a real l44 serve subprocess); opt in with -m e2e",
+    "slow: STT-venv integration test (requires .venv-stt + whisper weights); opt in with -m slow",
+]
+
+[dependency-groups]
+# IN-03: PEP 735 group consumed by uv (`uv sync`). Kept deliberately in sync with
+# the `[project.optional-dependencies].dev` extra above so `pip install -e .[dev]`
+# and `uv sync --extra dev` both install everything the tests need (pytest,
+# pre-commit, pytest-mock). Update both lists together.
+dev = [
+    "pytest ~= 9.0",
+    "pre-commit ~= 4.6",
+    "pytest-mock>=3.15.1",
+    "pytest-playwright>=0.5",
+]

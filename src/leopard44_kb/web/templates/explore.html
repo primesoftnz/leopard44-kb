@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Explore your boat — Leopard 44 KB{% endblock %}
+
+{% block main %}
+<div class="explore-view">
+  <h1 class="explore-title">Explore your boat</h1>
+
+  {% if not groups %}
+  <div class="empty-kb">
+    <p class="empty-kb-heading">Your boat&#8217;s knowledge base is empty.</p>
+    <p class="empty-kb-body">Add your first sources from the command line, then they&#8217;ll appear here.</p>
+    <div class="empty-kb-hints">
+      <code>l44 ingest &lt;file&gt;</code>
+      <code>l44 ingest data/whatsapp/</code>
+      <code>l44 add &#34;Replaced port impeller 2024-03-15&#34;</code>
+    </div>
+  </div>
+  {% else %}
+  {% for layer, rows in groups %}
+  <section class="layer-group">
+    <h2 class="layer-group-heading">
+      <span class="badge layer-{{ layer }}">
+        {% if layer == 'vessel' %}
+        <svg class="icon-layer" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l4-8 5 4 5-6 4 10"/><line x1="2" y1="21" x2="22" y2="21"/></svg>
+        {% elif layer == 'shared' %}
+        <svg class="icon-layer" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        {% elif layer == 'community' %}
+        <svg class="icon-layer" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        {% else %}
+        <svg class="icon-layer" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        {% endif %}
+        {{ layer | upper }}
+      </span>
+    </h2>
+    <ul class="source-rows">
+      {% for row in rows %}
+      <li class="source-row layer-{{ layer }}">
+        <span class="badge layer-{{ layer }}">
+          {% if layer == 'vessel' %}
+          <svg class="icon-layer" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l4-8 5 4 5-6 4 10"/><line x1="2" y1="21" x2="22" y2="21"/></svg>
+          {% elif layer == 'shared' %}
+          <svg class="icon-layer" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          {% elif layer == 'community' %}
+          <svg class="icon-layer" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          {% else %}
+          <svg class="icon-layer" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          {% endif %}
+          {{ layer | upper }}
+        </span>
+        <span class="source-row-title">{{ row.title or row.path }}</span>
+        <span class="source-row-meta">
+          <code class="source-type">{{ row.source_type }}</code>
+          <code class="source-date">{{ row.ingested_at }}</code>
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

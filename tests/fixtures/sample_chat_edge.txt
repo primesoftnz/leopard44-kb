@@ -1,0 +1,6 @@
+This is a malformed continuation line with no preceding message timestamp
+01/03/2024, 09:05 - Messages and calls are end-to-end encrypted. No one outside of this chat can read these.
+01/03/2024, 09:06 - Alice: Normal message follows the system line
+01/03/2024, 09:07 - Bob: Another message to ensure parsing continues
+This continuation line follows a real message and should append
+01/03/2024, 09:08 - Alice: Parser must not crash on the edge cases above

@@ -1,0 +1,10 @@
+3/1/2024, 9:05 AM - Alice: Good morning from the US locale export
+3/1/2024, 9:06 AM - Bob: Morning Alice, engine question
+3/1/2024, 9:07 AM - Alice: Go ahead
+3/1/2024, 9:08 AM - Bob: Port engine oil pressure low at idle
+3/1/2024, 9:09 AM - Alice: Check oil level first
+3/1/2024, 9:10 AM - Bob: Level is fine, pressure is 18 psi at idle
+3/1/2024, 9:11 AM - Alice: That is borderline, Yanmar spec is 20 psi minimum at idle
+3/1/2024, 9:12 AM - Bob: Will check sender and sender wiring
+3/1/2024, 9:45 AM - Bob: Sender wire was corroded, cleaned and pressure back to 28 psi
+3/1/2024, 9:46 AM - Alice: Good result, log it

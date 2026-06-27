@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Zone annotation — Leopard 44 KB{% endblock %}
+
+{% block main %}
+<div class="annotate-view">
+  <h1 class="zone-list-heading">Zone annotation</h1>
+  <p class="zone-list-progress">{{ annotated }} of {{ total }} zones annotated</p>
+
+  <ul class="zone-list">
+    {% for zone in zones %}
+    <li class="source-row zone-row">
+      <div class="zone-row-name">{{ zone.label }}</div>
+      {% if zone.vertical_desc %}
+      <div class="zone-row-desc">{{ zone.vertical_desc }}</div>
+      {% endif %}
+      <div class="zone-row-actions">
+        {% if zone.schematic_image is not none and zone.geometry is not none %}
+        <span class="badge layer-vessel">Annotated</span>
+        <a href="/annotate/{{ zone.id }}" class="nav-item">Re-draw zone</a>
+        {% else %}
+        <span class="badge layer-unknown">Not yet</span>
+        <a href="/annotate/{{ zone.id }}" class="nav-item">Annotate zone</a>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

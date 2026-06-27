@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Ask — Leopard 44 KB{% endblock %}
+
+{% block main %}
+<div class="ask-view">
+  <form id="ask-form" class="ask-form" novalidate>
+    <div class="ask-field-row">
+      <textarea
+        id="question"
+        name="question"
+        class="ask-textarea"
+        aria-label="Ask a question about your boat"
+        placeholder="Ask about your boat — e.g. why is the port engine overheating?"
+        rows="3"
+        autocomplete="off"
+        spellcheck="true"
+      ></textarea>
+      <!-- Mic button — voice input (D-01/D-02); wired by voice.js on Plan 04 arrival -->
+      <button type="button" class="mic-btn" id="mic-btn"
+              aria-label="Start voice input" title="Voice input">
+        <!-- inline SVG mic icon — no external src (D-08 zero-outbound guarantee) -->
+        <svg class="icon-mic" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+        <span class="mic-btn-label" aria-live="polite"></span>
+      </button>
+      <button type="submit" class="ask-btn" id="ask-btn" aria-label="Ask">
+        <svg class="icon-send" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 2L11 13"/>
+          <path d="M22 2L15 22 11 13 2 9l20-7z"/>
+        </svg>
+        <span class="ask-btn-label">Ask</span>
+      </button>
+    </div>
+  </form>
+  <!-- Voice feedback elements — shown/hidden by voice.js (D-03/D-04) -->
+  <div id="voice-error" class="voice-error" role="alert" aria-live="polite" hidden></div>
+  <div id="mic-timer" class="mic-timer" aria-live="polite" hidden></div>
+
+  <div id="empty-state" class="empty-state">
+    <p class="empty-state-orient">Answers come only from your knowledge base, and every source is labelled by layer.</p>
+    <h2 class="empty-state-heading">Try asking&hellip;</h2>
+    <div class="example-chips" role="list">
+      <button type="button" class="example-chip" role="listitem">What are the known issues with the Leopard 44?</button>
+      <button type="button" class="example-chip" role="listitem">What are the factory sail dimensions?</button>
+      <button type="button" class="example-chip" role="listitem">What engine models were used in the Leopard 44?</button>
+      <button type="button" class="example-chip" role="listitem">Is the Leopard 44 suitable for offshore bluewater passages?</button>
+    </div>
+  </div>
+
+  <section id="answer-area" class="answer-area" aria-live="polite" aria-label="Answer">
+  </section>
+
+  <section id="sources" class="sources-section" hidden>
+    <h2 class="sources-heading">Sources</h2>
+    <div id="sources-list" class="sources-list"></div>
+  </section>
+</div>
+{% endblock %}

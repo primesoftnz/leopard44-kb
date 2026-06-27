@@ -1,0 +1,15 @@
+default_install_hook_types: [pre-commit]
+default_stages: [pre-commit]
+repos:
+  - repo: local
+    hooks:
+      - id: no-data-commits
+        name: Block commits under data/
+        entry: >-
+          bash -c
+          'git diff --cached --name-only --diff-filter=ACMR | grep -E "^data/"
+          && echo "ERROR: data/ is gitignored vessel-layer storage. Move file or stash before commit."
+          && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+        always_run: true

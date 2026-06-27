@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Abstract vessel / instrument mark: hull outline + instrument panel dot -->
+  <!-- Uses currentColor so it respects the --accent token via color: var(--accent) on the element -->
+  <path d="M4 22 L10 10 L16 14 L22 8 L28 22 Z"/>
+  <line x1="3" y1="26" x2="29" y2="26"/>
+  <circle cx="16" cy="19" r="2.5" fill="currentColor" stroke="none"/>
+</svg>

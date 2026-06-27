@@ -1,0 +1,1095 @@
+/* ==========================================================================
+   Leopard 44 KB — hand-written CSS
+   Design contract: .planning/phases/05-local-web-ui/05-UI-SPEC.md
+   Chart-table instrument: calm, legible, offline-native.
+   Light (warm paper) by default; dark (night helm) via prefers-color-scheme.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS (UI-SPEC Token Summary — verbatim)
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* type */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --text-xl: 1.75rem; --text-lg: 1.25rem; --text-base: 1rem; --text-sm: 0.875rem;
+  --weight-regular: 400; --weight-semibold: 600;
+  --lh-body: 1.6; --lh-heading: 1.2;
+  /* spacing */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+  /* layout */
+  --measure: 720px; --radius: 8px; --radius-pill: 999px;
+  /* motion */
+  --dur-fast: 120ms; --dur-base: 180ms; --dur-slow: 240ms;
+  --ease-out: cubic-bezier(0.16,1,0.3,1); --ease-in-out: cubic-bezier(0.45,0,0.55,1);
+  /* LIGHT (default — warm paper). Dark is supplied by the @media block below. */
+  --bg: #F7F4EE; --surface: #FFFFFF; --border: #D8D0C2;
+  --text: #1A2A30; --text-muted: #5A6B70;
+  --accent: #9A5B00; --on-accent: #FFFFFF; --focus: #9A5B00;
+  --deviation: #1F5FA8;
+  --error: #B23A22; --refusal: #5A6B70;
+  --layer-vessel-bg: #F4E4CE; --layer-vessel-fg: #7A4408; --layer-vessel-rule: #B5731A;
+  --layer-shared-bg: #D9EDF4; --layer-shared-fg: #0F4F66; --layer-shared-rule: #2E7E9C;
+  --layer-community-bg: #DDEEDF; --layer-community-fg: #1E5A33; --layer-community-rule: #3C8557;
+  --layer-unknown-bg: #E9E4DA; --layer-unknown-fg: #4A5A60; --layer-unknown-rule: #6C7C82;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E1A1F; --surface: #13242B; --border: #27424C;
+    --text: #EAF2F4; --text-muted: #9DB2B9;
+    --accent: #E8A13A; --on-accent: #0E1A1F; --focus: #F2B65A;
+    --deviation: #5B9BD5;
+    --error: #F08A7A; --refusal: #9DB2B9;
+    --layer-vessel-bg: #3A2A18; --layer-vessel-fg: #F0B878; --layer-vessel-rule: #E8A13A;
+    --layer-shared-bg: #13303A; --layer-shared-fg: #7FC4DD; --layer-shared-rule: #4FA8C9;
+    --layer-community-bg: #1B2E22; --layer-community-fg: #8FC9A2; --layer-community-rule: #5DA877;
+    --layer-unknown-bg: #22333A; --layer-unknown-fg: #9DB2B9; --layer-unknown-rule: #5C7782;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET / BASE
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  line-height: var(--lh-body);
+  color: var(--text);
+  background-color: var(--bg);
+  min-height: 100vh;
+}
+
+/* --------------------------------------------------------------------------
+   3. SKIP LINK (a11y)
+   -------------------------------------------------------------------------- */
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius);
+  z-index: 100;
+  text-decoration: none;
+  transition: top var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+/* --------------------------------------------------------------------------
+   4. LAYOUT — single centered column, generous gutter
+   -------------------------------------------------------------------------- */
+
+.site-header,
+.scope-bar,
+.main-content {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--space-8);
+}
+
+@media (max-width: 720px) {
+  .site-header,
+  .scope-bar,
+  .main-content {
+    padding-inline: var(--space-4);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. HEADER + VIEW NAV
+   -------------------------------------------------------------------------- */
+
+.site-header {
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.wordmark {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.wordmark::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-left: var(--space-1);
+  vertical-align: middle;
+  margin-bottom: 2px;
+}
+
+.view-nav {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.nav-item {
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+  text-decoration: none;
+  padding-block: var(--space-1);
+  position: relative;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  border-radius: 1px;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.nav-item:hover {
+  color: var(--text);
+}
+
+.nav-item:hover::after {
+  background: var(--border);
+}
+
+.nav-item.active {
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+}
+
+.nav-item.active::after {
+  background: var(--accent);
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   6. STICKY SCOPE TOGGLE BAR (UI-03)
+   -------------------------------------------------------------------------- */
+
+.scope-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding-block: var(--space-3);
+}
+
+.scope-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.scope-label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: var(--weight-semibold);
+  flex-shrink: 0;
+}
+
+@media (max-width: 520px) {
+  .scope-label {
+    display: none;
+  }
+}
+
+.scope-toggle {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 2px;
+}
+
+.scope-btn {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  min-height: 44px;
+  min-width: 60px;
+  cursor: pointer;
+  transition:
+    background var(--dur-base) var(--ease-in-out),
+    color var(--dur-base) var(--ease-in-out);
+}
+
+.scope-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.scope-btn[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: var(--weight-semibold);
+}
+
+.scope-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.scope-helper {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-style: italic;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.scope-helper:empty {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. MAIN CONTENT
+   -------------------------------------------------------------------------- */
+
+.main-content {
+  padding-block: var(--space-8);
+}
+
+/* --------------------------------------------------------------------------
+   8. ASK VIEW — query form (hero)
+   -------------------------------------------------------------------------- */
+
+.ask-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.ask-form {
+  /* Elevated card feel for the hero query input */
+}
+
+.ask-field-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-end;
+}
+
+.ask-textarea {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--lh-body);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  resize: vertical;
+  min-height: 80px;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+}
+
+.ask-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.ask-textarea:hover {
+  border-color: var(--text-muted);
+}
+
+.ask-textarea:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+.ask-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ask-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--on-accent);
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-6);
+  min-height: 44px;
+  cursor: pointer;
+  transition:
+    filter var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.ask-btn:hover {
+  filter: brightness(1.08);
+}
+
+.ask-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.ask-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.ask-btn.working {
+  animation: breathe 1.2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.icon-send {
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   9. EMPTY STATE
+   -------------------------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.empty-state-orient {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  max-width: 52ch;
+}
+
+.empty-state-heading {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+}
+
+.example-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.example-chip {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.example-chip:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--bg);
+}
+
+.example-chip:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   10. ANSWER AREA (UI-02)
+   -------------------------------------------------------------------------- */
+
+.answer-area {
+  /* aria-live region — no visual chrome until content arrives */
+}
+
+/* Text container inside the answer area — for streamed token text */
+.answer-text {
+  font-size: var(--text-base);
+  line-height: var(--lh-body);
+  color: var(--text);
+  max-width: 68ch;
+  white-space: pre-wrap;   /* token newlines render as paragraph breaks (UI-SPEC §1) */
+  word-break: break-word;
+}
+
+/* Streaming caret — 1ch amber block, ~1s blink */
+.answer-caret {
+  display: inline-block;
+  width: 0.6ch;
+  height: 1.1em;
+  background: var(--accent);
+  vertical-align: text-bottom;
+  margin-left: 1px;
+  animation: caret-blink 1s steps(2, start) infinite;
+}
+
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Refusal state (calm, not error) */
+.answer-refusal {
+  font-size: var(--text-base);
+  line-height: var(--lh-body);
+  color: var(--refusal);
+  max-width: 68ch;
+}
+
+.refusal-tip {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* Error / Ollama-down fault block */
+.fault-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--error);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  max-width: 68ch;
+}
+
+.fault-heading {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--error);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.fault-message {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text);
+  background: var(--bg);
+  padding: var(--space-3);
+  border-radius: calc(var(--radius) - 2px);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.fault-retry {
+  margin-top: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  min-height: 44px;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.fault-retry:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.fault-retry:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Dropped connection notice (distinct from Done — muted, italic) */
+.dropped-notice {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: var(--space-3);
+  max-width: 68ch;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.dropped-retry {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+  min-height: 44px;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.dropped-retry:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.dropped-retry:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   11. SOURCES SECTION (UI-02)
+   -------------------------------------------------------------------------- */
+
+.sources-section {
+  margin-top: var(--space-8);
+}
+
+.sources-heading {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+  line-height: var(--lh-heading);
+  margin-bottom: var(--space-4);
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Source card — layer left rule, surface body */
+.source-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  border-left: 4px solid var(--border);
+  position: relative;
+  animation: card-rise var(--dur-base) var(--ease-out) both;
+  transition:
+    border-left-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.source-card:hover {
+  transform: translateY(-1px);
+}
+
+.source-card.just-jumped {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  transition: background 600ms var(--ease-out);
+}
+
+/* Layer-specific left rules */
+.source-card.layer-vessel  { border-left-color: var(--layer-vessel-rule);  }
+.source-card.layer-shared  { border-left-color: var(--layer-shared-rule);  }
+.source-card.layer-community { border-left-color: var(--layer-community-rule); }
+.source-card.layer-unknown { border-left-color: var(--layer-unknown-rule); }
+
+.source-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.source-card-title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+  line-height: var(--lh-heading);
+}
+
+.source-card-index {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.source-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.source-card-page {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* Option A: expandable cited passage */
+.source-card-passage-wrap {
+  margin-top: var(--space-3);
+}
+
+.source-card-toggle {
+  cursor: pointer;
+  display: inline-block;
+  font-size: var(--text-sm);
+  color: var(--accent);
+  list-style: none;            /* hide default disclosure triangle */
+  user-select: none;
+}
+.source-card-toggle::-webkit-details-marker { display: none; }
+.source-card-toggle::before { content: "▸ "; }
+details[open] > .source-card-toggle::before { content: "▾ "; }
+.source-card-toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+.source-card-passage {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  line-height: var(--lh-base, 1.55);
+  color: var(--text);
+  white-space: pre-wrap;       /* preserve the chunk's line breaks */
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+/* --------------------------------------------------------------------------
+   12. LAYER BADGES (shared between source cards and Explore)
+   -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-2);
+  line-height: 1.4;
+}
+
+.badge.layer-vessel   { background: var(--layer-vessel-bg);   color: var(--layer-vessel-fg);   }
+.badge.layer-shared   { background: var(--layer-shared-bg);   color: var(--layer-shared-fg);   }
+.badge.layer-community { background: var(--layer-community-bg); color: var(--layer-community-fg); }
+.badge.layer-unknown  { background: var(--layer-unknown-bg);  color: var(--layer-unknown-fg);  }
+
+.icon-layer {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* --------------------------------------------------------------------------
+   13. CITATION CHIPS (inline [n] → scrollable anchor)
+   -------------------------------------------------------------------------- */
+
+.cite-chip {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  padding: 1px 5px;
+  cursor: pointer;
+  vertical-align: baseline;
+  line-height: 1.4;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.cite-chip:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.cite-chip:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   14. EXPLORE VIEW
+   -------------------------------------------------------------------------- */
+
+.explore-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.explore-title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+  line-height: var(--lh-heading);
+}
+
+/* Empty KB state */
+.empty-kb {
+  max-width: 52ch;
+}
+
+.empty-kb-heading {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+  margin-bottom: var(--space-3);
+}
+
+.empty-kb-body {
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.empty-kb-hints {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.empty-kb-hints code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  display: block;
+}
+
+/* Layer group (Explore grouping) */
+.layer-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.layer-group-heading {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+  line-height: var(--lh-heading);
+}
+
+.source-rows {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Explore source row — read-only */
+.source-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.source-row:hover {
+  background: var(--bg);
+}
+
+.source-row.layer-vessel   { border-left-color: var(--layer-vessel-rule);  }
+.source-row.layer-shared   { border-left-color: var(--layer-shared-rule);  }
+.source-row.layer-community { border-left-color: var(--layer-community-rule); }
+.source-row.layer-unknown  { border-left-color: var(--layer-unknown-rule); }
+
+.source-row-title {
+  font-size: var(--text-base);
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.source-row-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.source-type,
+.source-date {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   D-05: Alpha banner — static notice, no external origins.
+   Uses fallback hex values in case --surface-1 is not defined (it isn't in
+   the base token set; --surface is used instead as the background).
+   -------------------------------------------------------------------------- */
+
+.alpha-banner {
+  background: var(--surface-1, #f5f5f5);
+  border-left: 3px solid var(--accent, #2563eb);
+  padding: 0.75rem 1rem;
+  margin: 0;
+}
+.alpha-banner .alpha-text {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* --------------------------------------------------------------------------
+   15. MOTION — REDUCED MOTION GUARD (verbatim from UI-SPEC § 5)
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Phase 9: Zone annotation list
+   ------------------------------------------------------------------------- */
+.zone-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.zone-list-heading { font-size: var(--text-lg); font-weight: var(--weight-semibold); }
+.zone-list-progress { font-size: var(--text-sm); color: var(--text-muted); }
+.zone-row { border-left: 4px solid var(--layer-vessel-rule); }
+.zone-row-name { font-size: var(--text-base); font-weight: var(--weight-semibold); }
+.zone-row-desc { font-size: var(--text-sm); color: var(--text-muted); }
+.zone-row-actions { display: flex; gap: var(--space-3); align-items: center; }
+
+/* Phase 9: Polygon editor */
+.editor-view { display: flex; flex-direction: column; gap: var(--space-6); }
+.editor-zone-header { display: flex; flex-direction: column; gap: var(--space-1); }
+.editor-zone-name { font-size: var(--text-lg); font-weight: var(--weight-semibold); }
+.editor-zone-desc { font-size: var(--text-sm); color: var(--text-muted); }
+.schematic-picker-row { display: flex; gap: var(--space-3); align-items: center; }
+.canvas-block { position: relative; display: inline-block; }
+.canvas-block canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+.canvas-instruction { font-size: var(--text-sm); color: var(--text-muted); text-align: center; margin-top: var(--space-2); }
+.editor-action-row { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-4); }
+.btn-secondary { border: 1px solid var(--border); color: var(--text-muted); background: transparent; min-height: 44px; border-radius: var(--radius); padding-inline: var(--space-4); cursor: pointer; }
+.btn-cancel { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: var(--text-base); }
+.save-success { border-left: 4px solid var(--layer-vessel-rule); background: var(--surface); border-radius: var(--radius); padding: var(--space-4); }
+
+/* Phase 9: Query result highlight */
+.zone-highlight { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-block: var(--space-8); }
+.zone-highlight-name { font-size: var(--text-base); font-weight: var(--weight-semibold); }
+.zone-highlight-cue { font-size: var(--text-base); color: var(--text-muted); margin-top: var(--space-1); }
+.schematic-reveal summary { color: var(--accent); cursor: pointer; font-size: var(--text-sm); margin-top: var(--space-2); }
+.schematic-container { position: relative; display: inline-block; width: 100%; }
+.schematic-img { max-width: 100%; max-height: 480px; display: block; }
+/* zone-polygon-overlay: absolutely positioned SVG over the schematic image.
+   The SVG viewBox is set in JS to match the natural image pixel dims, so
+   polygon points are in natural-px coordinates; vector-effect=non-scaling-stroke
+   keeps the stroke thin regardless of CSS scaling (review concern 3). */
+.zone-polygon-overlay { position: absolute; inset: 0; pointer-events: none; width: 100%; height: 100%; }
+
+/* Phase 11: Deviation highlight variant — blue, distinct from amber inventory highlight.
+   Applied as a BEM modifier: .zone-highlight.zone-highlight--deviation.
+   Uses --deviation token (light: #1F5FA8 deep blue; dark: #5B9BD5 lighter blue for night-helm).
+   Does NOT alter .zone-highlight amber defaults (T-11-08 / T-11-09 / D-11). */
+.zone-highlight--deviation { border-left: 4px solid var(--deviation); }
+.zone-highlight--deviation .zone-highlight-name { color: var(--deviation); }
+.zone-highlight--deviation .schematic-reveal summary { color: var(--deviation); }
+
+/* --------------------------------------------------------------------------
+   Phase 10: Voice input UI (D-01/D-02/D-03/D-04/D-05)
+   -------------------------------------------------------------------------- */
+
+/* Mic button — sits in .ask-field-row alongside the textarea and Ask button.
+   Sized to match .ask-btn height (44px min) but narrower (icon-only). */
+.mic-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  min-height: 44px;
+  min-width: 44px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.mic-btn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.mic-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Recording state — pulsing accent colour (D-03 visual feedback) */
+.mic-btn.recording {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
+}
+
+/* Transcribing state — muted breathing */
+.mic-btn.transcribing {
+  color: var(--text-muted);
+  background: var(--surface);
+  border-color: var(--border);
+  opacity: 0.7;
+  cursor: default;
+  animation: breathe 1.2s ease-in-out infinite;
+}
+
+/* Disabled / unsupported / not-installed state */
+.mic-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mic-btn:disabled,
+.mic-btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.icon-mic {
+  flex-shrink: 0;
+}
+
+/* Elapsed recording timer (D-03) — appears below the form when recording */
+.mic-timer {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+}
+
+.mic-timer[hidden] {
+  display: none;
+}
+
+/* Voice error / install hint (D-04) — inline notice below the form */
+.voice-error {
+  font-size: var(--text-sm);
+  color: var(--error);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--error) 8%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--error) 25%, var(--border));
+}
+
+.voice-error[hidden] {
+  display: none;
+}

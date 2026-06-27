@@ -1,0 +1,8 @@
+01.03.24, 09:05 - Alice: Guten Morgen, European locale export
+01.03.24, 09:06 - Bob: Morgen! Frage zum Impeller
+01.03.24, 09:07 - Alice: Welcher Motor?
+01.03.24, 09:08 - Bob: Steuerbord, macht Geräusche beim Starten
+01.03.24, 09:09 - Alice: Kühlwasserfilter prüfen zuerst
+01.03.24, 09:10 - Bob: Filter war verstopft, gereinigt
+01.03.24, 09:45 - Bob: Problem behoben, Impeller war in Ordnung
+01.03.24, 09:46 - Alice: Gut, im Wartungsprotokoll notieren

@@ -1,0 +1,59 @@
+# leopard44-kb.service — systemd unit template for server deployment
+#
+# This is a SERVER-INSTALL TEMPLATE. Before deploying, replace the two placeholders:
+#
+#   <HOST_IP>   — the IP address of the server interface you want uvicorn to bind.
+#                 Use the internal/LAN IP that your reverse proxy connects to,
+#                 not 0.0.0.0 (exposes all interfaces) or 127.0.0.1 (loopback only).
+#
+# INVARIANTS (do not change without understanding the consequences):
+#
+#   --workers 1  [HARD INVARIANT]
+#     The concurrency cap is a module-level threading.BoundedSemaphore(2).
+#     Raising --workers above 1 gives EACH worker its own semaphore instance,
+#     which invalidates the cap: the semaphore no longer applies across
+#     in-flight requests. Single-worker is intentional and correct for a
+#     CPU-bound, single-Ollama-instance deployment.
+#
+#   --host <HOST_IP>  (not 0.0.0.0, not 127.0.0.1)
+#     Bind the specific interface your reverse proxy (nginx, Apache, etc.)
+#     connects to. Binding 127.0.0.1 makes uvicorn unreachable from the proxy;
+#     binding 0.0.0.0 exposes port 8000 on all interfaces — use your firewall
+#     to restrict access to the proxy source IP.
+#
+#   Environment= lines contain only NON-SENSITIVE paths and a loopback base URL.
+#     No credentials, API keys, or private data belong here. Keep secrets off-git.
+
+[Unit]
+Description=Leopard 44 KB knowledge base
+After=network.target ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+User=l44
+WorkingDirectory=/opt/leopard44-kb
+
+# Full path to uvicorn binary avoids systemd PATH issues.
+# --factory: uvicorn calls create_app() and uses the returned FastAPI instance.
+# --workers 1: HARD INVARIANT — see header comment above.
+# --host <HOST_IP>: bind the server's LAN interface — fill this before deploying.
+ExecStart=/opt/leopard44-kb/.venv/bin/uvicorn leopard44_kb.web.app:create_app --factory --host <HOST_IP> --port 8000 --workers 1 --access-log --log-level info
+
+Restart=on-failure
+RestartSec=5s
+
+# Non-sensitive environment — data paths and loopback URLs only.
+# L44_DB and L44_CONFIG point outside the repo clone so no user data
+# is ever written inside /opt/leopard44-kb (which is a git checkout).
+Environment=L44_DB=/opt/leopard44-kb-data/store.db
+Environment=L44_CONFIG=/opt/leopard44-kb-data/config.json
+Environment=OLLAMA_HOST=http://127.0.0.1:11434
+
+# OLLAMA_KEEP_ALIVE=-1: keeps the model resident in Ollama after load.
+# Without this the model unloads between requests and cold-start takes 30-120s.
+# -1 means "keep forever" — appropriate for a dedicated inference server.
+Environment=OLLAMA_KEEP_ALIVE=-1
+
+[Install]
+WantedBy=multi-user.target

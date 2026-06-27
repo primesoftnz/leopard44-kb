@@ -1,0 +1,8 @@
+[01/03/2024, 9:05:00 AM] Alice: AM PM fixture with narrow no-break space
+[01/03/2024, 9:06:15 AM] Bob: This uses U+202F before AM
+[01/03/2024, 9:07:30 AM] Alice: Modern iOS exports use this character
+[01/03/2024, 9:08:00 AM] Bob: Parser must handle it correctly
+[01/03/2024, 9:09:45 AM] Alice: Check the codepoint in the file
+[01/03/2024, 9:45:00 AM] Bob: 36 minutes later - time gap boundary
+[01/03/2024, 9:46:00 AM] Alice: This should be a second chunk
+[01/03/2024, 9:47:00 PM] Bob: Afternoon session

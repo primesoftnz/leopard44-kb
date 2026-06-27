@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}Leopard 44 KB{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', path='/favicon.svg').path }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='/app.css').path }}?v=alpha2">
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="wordmark">Leopard 44 KB</span>
+      <nav class="view-nav" aria-label="Views">
+        <a href="/"
+           class="nav-item{% if request.url.path == '/' %} active{% endif %}"
+           {% if request.url.path == '/' %}aria-current="page"{% endif %}>Ask</a>
+        {# Explore nav item removed for the alpha — listing filenames you can't open is
+           noise. Restore in beta as a real md→html source viewer (opens in a new tab). #}
+      </nav>
+    </div>
+  </header>
+
+  <!-- D-05: alpha banner — static content, no external origins -->
+  <div class="alpha-banner" role="banner" aria-label="Alpha notice">
+    <p class="alpha-text">
+      <strong>Leopard 44 KB — Leopard 44 knowledge base (alpha).</strong>
+      This demo is seeded with model-generic L44 reference docs only.
+      <strong>Try one of the questions below, then criticise in the WhatsApp group.</strong>
+    </p>
+  </div>
+
+  <div class="scope-bar" id="scope-bar">
+    <div class="scope-bar-inner">
+      <span class="scope-label" aria-hidden="true">Scope:</span>
+      <div class="scope-toggle" role="group" aria-label="Layer scope">
+        <button type="button" class="scope-btn" data-scope="all" aria-pressed="true">All</button>
+        <button type="button" class="scope-btn" data-scope="shared" aria-pressed="false">Shared</button>
+        <button type="button" class="scope-btn" data-scope="vessel" aria-pressed="false">Vessel</button>
+      </div>
+      <span class="scope-helper" id="scope-helper" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <main id="main" class="main-content">
+    {% block main %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', path='/app.js').path }}?v=alpha2" defer></script>
+  <script src="{{ url_for('static', path='/voice.js').path }}?v=alpha2" defer></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# Private data — never commit
+# User-populated per PROJECT.md "Shared vs Private" design
+data/
+
+# Claude Code runtime artefacts (scheduled-task locks, etc.)
+.claude/
+
+# Python build/test artefacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# STT isolated venv (created by `l44 voice setup`; faster-whisper lives here only)
+.venv-stt/
+
+# Windows "downloaded-from-internet" alternate-data-stream artefacts
+*:Zone.Identifier
+
+# Playwright E2E artefacts (videos, screenshots, traces)
+test-results-e2e/
+test-results/
+
+# Spike scratch (synthesized audio, downloaded model caches, sample photos)
+.planning/spikes/**/audio/
+.planning/spikes/**/images/

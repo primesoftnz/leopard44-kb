@@ -1,0 +1,12 @@
+01/03/2024, 09:00 - Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them.
+01/03/2024, 09:05 - Alice: Good morning everyone
+01/03/2024, 09:06 - Bob: Morning! Quick question about the impeller
+01/03/2024, 09:07 - Bob: Starboard engine started making a noise yesterday
+Should I check the raw water strainer first?
+01/03/2024, 09:08 - Alice: Yes, check strainer then impeller
+01/03/2024, 09:09 - Bob: <Media omitted>
+That photo shows the strainer housing
+01/03/2024, 09:10 - Alice: Looks like debris in there
+Clean it out and retry
+01/03/2024, 09:45 - Bob: Fixed! Strainer was 80% blocked
+01/03/2024, 09:46 - Alice: Great. Log it in the maintenance log
